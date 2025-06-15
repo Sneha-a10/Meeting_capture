@@ -1,0 +1,27 @@
+.media-player-container {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px; /* Example height */
+}
+
+.file-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.download-icon {
+  width: 24px;
+  height: 24px;
+  fill: #666; /* Adjust icon color */
+  cursor: pointer;
+}
+
+.download-icon:hover {
+  fill: #007bff;
+}

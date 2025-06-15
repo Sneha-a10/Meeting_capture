@@ -1,0 +1,56 @@
+.uploader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  border: 2px dashed var(--accent);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  background-color: var(--secondary);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  width: 86%; 
+  }
+
+.uploader-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.upload-box {
+  text-align: center;
+  font-size: 1.2em;
+  color: var(--text);
+  width: 100%;
+  padding: 20px;
+}
+
+.uploaded-file {
+  display: flex;
+  flex-direction: column; /* Arrange icon and file name vertically */
+  align-items: center; /* Center align the icon and file name */
+  justify-content: center;
+  width: 300px; /* Decrease the width */
+  padding: 20px;
+  border: 1px solid var(--highlight);
+  border-radius: 10px;
+  background-color: var(--primary);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.file-icon {
+  width: 50px; /* Set maximum width */
+  height: 50px; /* Set maximum height */
+  object-fit: contain; /* Ensure the icon fits within the specified dimensions */
+  margin-bottom: 10px; /* Add spacing between the icon and file name */
+}
+
+.file-name {
+  font-size: 1em;
+  color: var(--text);
+  text-align: center;
+}
+

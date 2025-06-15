@@ -1,0 +1,14 @@
+.content-panel-text {
+  font-size: 1em;
+  line-height: 1.6;
+  color: var(--text);
+
+  white-space: pre-wrap; /* Preserves whitespace and line breaks from mock data */
+  overflow-y: auto; /* Enable scrolling if content exceeds max-height */
+  max-height: none; /* Remove height restriction */
+  padding-right: 10px; /* For scrollbar spacing */
+  background-color: var(--primary);
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
