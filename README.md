@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎙️ MeetingAI - Transform Your Meetings Into Actionable Insights
 
-## Getting Started
+A professional meeting transcription and summarization web application built with Next.js, React, and Tailwind CSS. Automatically transcribe and summarize your meetings with AI-powered precision.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **AI-Powered Transcription** - Accurate speech-to-text conversion with speaker identification
+- **Smart Summaries** - Automatically generate key points, action items, and meeting highlights
+- **Real-time Recording** - Live meeting recording with instant transcription
+- **File Upload Support** - Upload audio/video files for processing
+- **Guest & Registered Users** - Full functionality for guests, enhanced features for registered users
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+
+- **Node.js** (version 18 or higher)
+- **npm** package manager
+- **Git**
+
+### Required Commands
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/meeting-transcriber.git
+   cd meeting-transcriber
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Initialize shadcn/ui**
+   ```bash
+   npx shadcn@latest init
+   ```
+   
+   Use these settings when prompted:
+   - TypeScript: **Yes**
+   - Style: **Default**
+   - Base color: **Slate**
+   - Global CSS: **app/globals.css**
+   - CSS variables: **Yes**
+   - Tailwind config: **tailwind.config.ts**
+   - Components alias: **@/components**
+   - Utils alias: **@/lib/utils**
+
+4. **Add required UI components**
+   ```bash
+   npx shadcn@latest add button card badge separator progress input
+   ```
+
+5. **Install additional dependencies**
+   ```bash
+   npm install @radix-ui/react-progress class-variance-authority lucide-react
+   ```
+
+6. **Start the application**
+   ```bash
+   npm run dev
+   ```
+
+7. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 📁 Project Structure
+
+```
+meeting-transcriber/
+├── app/
+│   ├── page.tsx                 # Homepage
+│   ├── login/page.tsx           # Login page
+│   ├── meetings/page.tsx        # All meetings page
+│   └── transcribe/page.tsx      # Transcription page
+├── components/ui/               # UI components
+└── lib/utils.ts                 # Utilities
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Essential Commands
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Start the application
+npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Build for production
+npm run build
 
-## Learn More
+# Start production server
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+That's it! Your MeetingAI application should now be running at [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+⭐ **Star this repo** if you find it helpful!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
