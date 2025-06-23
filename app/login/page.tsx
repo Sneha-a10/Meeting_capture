@@ -7,13 +7,26 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Mic, Eye, EyeOff, ArrowLeft, Mail, Lock, User } from "lucide-react"
+
+import { Mic, Eye, EyeOff, ArrowLeft, Mail, Lock, User, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from 'next/navigation';
+
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = useState({
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
@@ -21,20 +34,91 @@ export default function LoginPage() {
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }))
+    // Clear error when user starts typing
+    if (error) setError("");
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle login/signup logic here
-    console.log("Form submitted:", formData)
+  const validateForm = (): boolean => {
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all required fields");
+      return false;
+    }
+
+    if (!isLogin && !formData.name) {
+      setError("Please enter your full name");
+      return false;
+    }
+
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address");
+      return false;
+    }
+
+    return true;
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const url = isLogin ? "/api/login" : "/api/signup";
+      
+      const requestBody = {
+        email: formData.email.trim(),
+        password: formData.password,
+        ...(isLogin ? {} : { name: formData.name.trim() }),
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Something went wrong");
+        return;
+      }
+
+      // Success - redirect to home page
+      router.push("/");
+      
+    } catch (error) {
+      console.error("Request failed:", error);
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleMode = () => {
     setIsLogin(!isLogin)
+    setError("")
     setFormData({
       name: "",
       email: "",
@@ -86,6 +170,13 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 rounded-md bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name field for signup */}
               {!isLogin && (
@@ -103,6 +194,7 @@ export default function LoginPage() {
                       value={formData.name}
                       onChange={handleInputChange}
                       className="pl-10"
+                      disabled={isLoading}
                       required={!isLogin}
                     />
                   </div>
@@ -124,6 +216,7 @@ export default function LoginPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="pl-10"
+                    disabled={isLoading}
                     required
                   />
                 </div>
@@ -144,12 +237,14 @@ export default function LoginPage() {
                     value={formData.password}
                     onChange={handleInputChange}
                     className="pl-10 pr-10"
+                    disabled={isLoading}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -172,6 +267,7 @@ export default function LoginPage() {
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className="pl-10"
+                      disabled={isLoading}
                       required={!isLogin}
                     />
                   </div>
@@ -191,8 +287,16 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                disabled={isLoading}
               >
-                {isLogin ? "Sign In" : "Create Account"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {isLogin ? "Signing In..." : "Creating Account..."}
+                  </>
+                ) : (
+                  isLogin ? "Sign In" : "Create Account"
+                )}
               </Button>
             </form>
 
@@ -207,7 +311,7 @@ export default function LoginPage() {
             </div>
 
             {/* Google Login Button */}
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" disabled={isLoading}>
               <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
@@ -236,6 +340,7 @@ export default function LoginPage() {
                 <button
                   onClick={toggleMode}
                   className="text-blue-600 hover:text-blue-500 font-medium transition-colors"
+                  disabled={isLoading}
                 >
                   {isLogin ? "Sign up" : "Sign in"}
                 </button>

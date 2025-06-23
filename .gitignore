@@ -38,3 +38,5 @@ coverage/
 
 # Generated files
 *.map
+
+/lib/generated/prisma
