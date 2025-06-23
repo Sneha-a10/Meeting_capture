@@ -11,30 +11,6 @@ export default function HomePage() {
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
 
-  const recentMeetings = [
-    {
-      id: 1,
-      title: "Q4 Strategy Planning",
-      date: "2024-01-15",
-      duration: "45 min",
-      participants: 8,
-    },
-    {
-      id: 2,
-      title: "Product Review Meeting",
-      date: "2024-01-14",
-      duration: "32 min",
-      participants: 5,
-    },
-    {
-      id: 3,
-      title: "Client Presentation",
-      date: "2024-01-12",
-      duration: "28 min",
-      participants: 3,
-    },
-  ]
-
   const handleStartRecording = () => {
     setIsRecording(true)
     // Start recording logic would go here
@@ -59,12 +35,7 @@ export default function HomePage() {
               <h1 className="text-xl font-bold text-slate-900">MeetingAI</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-slate-600 hover:text-slate-900 transition-colors">
-                Dashboard
-              </Link>
-              <Link href="/meetings" className="text-slate-600 hover:text-slate-900 transition-colors">
-                Meetings
-              </Link>
+              <span className="text-slate-600">Guest Mode</span>
             </nav>
             <Link href="/login" className="hidden md:block">
               Sign In
@@ -87,6 +58,15 @@ export default function HomePage() {
             Automatically transcribe and summarize your meetings with AI-powered precision. Never miss important details
             again.
           </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 max-w-2xl mx-auto">
+            <p className="text-blue-800 text-sm">
+              <strong>Guest Mode:</strong> Try our features without signing up! Your session data won't be saved.{" "}
+              <Link href="/login" className="underline hover:text-blue-600">
+                Sign in
+              </Link>{" "}
+              to save your meetings.
+            </p>
+          </div>
 
           {/* Quick Action Cards */}
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-12">
@@ -95,6 +75,9 @@ export default function HomePage() {
                   <Upload className="w-12 h-12 text-slate-400 group-hover:text-blue-500 mx-auto mb-4 transition-colors" />
                   <h3 className="font-semibold text-slate-900 mb-2">Upload Recording</h3>
                   <p className="text-sm text-slate-600">Drop your audio or video file here</p>
+                  <Button className="mt-4" size="sm">
+                  Choose File
+                </Button>
                 </CardContent>
               </Card>
 
@@ -186,68 +169,6 @@ export default function HomePage() {
           </Card>
         </div>
       </section>
-
-      {/* Recent Meetings */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-2xl font-bold text-slate-900">Recent Meetings</h3>
-          <Button variant="outline" size="sm">
-            View All <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-
-        <div className="grid gap-4">
-          {recentMeetings.map((meeting) => (
-            <Card key={meeting.id} className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900">{meeting.title}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-slate-600 mt-1">
-                        <span className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {meeting.duration}
-                        </span>
-                        <span className="flex items-center">
-                          <Users className="w-4 h-4 mr-1" />
-                          {meeting.participants} participants
-                        </span>
-                        <span>{meeting.date}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Link href="/transcribe">
-                      <Button variant="ghost" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      {/* <footer className="border-t bg-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center">
-                <Mic className="w-3 h-3 text-white" />
-              </div>
-              <span className="font-semibold text-slate-900">MeetingAI</span>
-            </div>
-            <p className="text-sm text-slate-600">© 2024 MeetingAI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer> */}
     </div>
   )
 }
