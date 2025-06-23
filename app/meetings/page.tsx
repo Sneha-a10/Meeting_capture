@@ -31,7 +31,6 @@ export default function MeetingsPage() {
       time: "2:00 PM",
       duration: "45 min",
       participants: 8,
-      status: "completed",
       type: "Strategy",
       summary: "Discussed Q4 goals, budget allocation, and team restructuring plans.",
     },
@@ -42,7 +41,6 @@ export default function MeetingsPage() {
       time: "10:30 AM",
       duration: "32 min",
       participants: 5,
-      status: "completed",
       type: "Product",
       summary: "Reviewed new feature releases and gathered feedback from stakeholders.",
     },
@@ -53,7 +51,6 @@ export default function MeetingsPage() {
       time: "3:15 PM",
       duration: "28 min",
       participants: 3,
-      status: "completed",
       type: "Client",
       summary: "Presented project timeline and deliverables to client stakeholders.",
     },
@@ -64,7 +61,6 @@ export default function MeetingsPage() {
       time: "9:00 AM",
       duration: "22 min",
       participants: 12,
-      status: "completed",
       type: "Standup",
       summary: "Team updates on current projects and blockers discussion.",
     },
@@ -75,7 +71,6 @@ export default function MeetingsPage() {
       time: "1:45 PM",
       duration: "38 min",
       participants: 6,
-      status: "completed",
       type: "Marketing",
       summary: "Analyzed campaign performance metrics and planned next quarter initiatives.",
     },
@@ -86,7 +81,6 @@ export default function MeetingsPage() {
       time: "11:00 AM",
       duration: "52 min",
       participants: 4,
-      status: "processing",
       type: "Finance",
       summary: "Currently processing transcript and summary...",
     },
@@ -99,18 +93,6 @@ export default function MeetingsPage() {
     return matchesSearch
   })
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-700"
-      case "processing":
-        return "bg-yellow-100 text-yellow-700"
-      case "failed":
-        return "bg-red-100 text-red-700"
-      default:
-        return "bg-gray-100 text-gray-700"
-    }
-  }
 
   const getTypeColor = (type: string) => {
     const colors = {
@@ -192,7 +174,6 @@ export default function MeetingsPage() {
                       <div className="flex items-center space-x-3 mb-2">
                         <h3 className="font-semibold text-slate-900 text-lg">{meeting.title}</h3>
                         <Badge className={getTypeColor(meeting.type)}>{meeting.type}</Badge>
-                        <Badge className={getStatusColor(meeting.status)}>{meeting.status}</Badge>
                       </div>
                       <div className="flex items-center space-x-6 text-sm text-slate-600 mb-3">
                         <span className="flex items-center">

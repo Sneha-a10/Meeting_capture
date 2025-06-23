@@ -18,7 +18,6 @@ export default function HomePage() {
       date: "2024-01-15",
       duration: "45 min",
       participants: 8,
-      status: "completed",
     },
     {
       id: 2,
@@ -26,7 +25,6 @@ export default function HomePage() {
       date: "2024-01-14",
       duration: "32 min",
       participants: 5,
-      status: "completed",
     },
     {
       id: 3,
@@ -34,7 +32,6 @@ export default function HomePage() {
       date: "2024-01-12",
       duration: "28 min",
       participants: 3,
-      status: "completed",
     },
   ]
 
@@ -224,9 +221,6 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Badge variant="secondary" className="bg-green-100 text-green-700">
-                      {meeting.status}
-                    </Badge>
                     <Link href="/transcribe">
                       <Button variant="ghost" size="sm">
                         View Details
