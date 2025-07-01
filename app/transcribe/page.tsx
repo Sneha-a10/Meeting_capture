@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -20,39 +22,62 @@ import {
   FileText,
   Sparkles,
   CheckCircle,
+  Volume2,
+  AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 
 export default function TranscribePage() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
-  const [duration] = useState(2847) // 47:27 in seconds
+  const [duration, setDuration] = useState(0)
   const [selectedSpeaker, setSelectedSpeaker] = useState("all")
+  const [volume, setVolume] = useState(1)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [uploadedFile, setUploadedFile] = useState<any>(null)
+  const [audioError, setAudioError] = useState(false)
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  // Load uploaded file data from sessionStorage
+  useEffect(() => {
+    const fileData = sessionStorage.getItem("uploadedFile")
+    const storedAudioUrl = sessionStorage.getItem("audioUrl")
+
+    if (fileData && storedAudioUrl) {
+      setUploadedFile(JSON.parse(fileData))
+      setAudioUrl(storedAudioUrl)
+    }
+  }, [])
 
   const transcriptData = [
     {
       speaker: "John Smith",
       time: "00:02",
+      timeInSeconds: 2,
       text: "Good morning everyone, thank you for joining today's quarterly review meeting. Let's start by going over our key performance indicators from Q4.",
     },
     {
       speaker: "Sarah Johnson",
       time: "00:15",
+      timeInSeconds: 15,
       text: "Thanks John. I'm excited to share that we exceeded our revenue targets by 15% this quarter. Our customer acquisition has been particularly strong in the enterprise segment.",
     },
     {
       speaker: "Mike Chen",
       time: "00:32",
+      timeInSeconds: 32,
       text: "That's fantastic news Sarah. From a product perspective, we've successfully launched three major features that our customers have been requesting. The user feedback has been overwhelmingly positive.",
     },
     {
       speaker: "John Smith",
       time: "00:48",
+      timeInSeconds: 48,
       text: "Excellent work team. Let's dive deeper into the metrics. Sarah, can you walk us through the detailed breakdown of our customer segments?",
     },
     {
       speaker: "Sarah Johnson",
       time: "01:02",
+      timeInSeconds: 62,
       text: "Absolutely. Our enterprise clients now represent 60% of our total revenue, up from 45% last quarter. We've also seen a 25% increase in average contract value.",
     },
   ]
@@ -76,14 +101,132 @@ export default function TranscribePage() {
     topics: ["Revenue Review", "Product Updates", "Customer Metrics", "Q1 Planning"],
   }
 
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio || !audioUrl) return
+
+    const handleLoadedMetadata = () => {
+      setDuration(Math.floor(audio.duration))
+      setAudioError(false)
+    }
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(Math.floor(audio.currentTime))
+    }
+
+    const handleEnded = () => {
+      setIsPlaying(false)
+      setCurrentTime(0)
+    }
+
+    const handleError = () => {
+      setAudioError(true)
+      console.error("Audio loading error")
+    }
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+    audio.addEventListener("timeupdate", handleTimeUpdate)
+    audio.addEventListener("ended", handleEnded)
+    audio.addEventListener("error", handleError)
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
+      audio.removeEventListener("timeupdate", handleTimeUpdate)
+      audio.removeEventListener("ended", handleEnded)
+      audio.removeEventListener("error", handleError)
+    }
+  }, [audioUrl])
+
+  const togglePlayPause = () => {
+    const audio = audioRef.current
+    if (!audio || audioError) return
+
+    if (isPlaying) {
+      audio.pause()
+    } else {
+      audio.play().catch(() => setAudioError(true))
+    }
+    setIsPlaying(!isPlaying)
+  }
+
+  const skipBackward = () => {
+    const audio = audioRef.current
+    if (!audio || audioError) return
+
+    audio.currentTime = Math.max(0, audio.currentTime - 10)
+  }
+
+  const skipForward = () => {
+    const audio = audioRef.current
+    if (!audio || audioError) return
+
+    audio.currentTime = Math.min(audio.duration, audio.currentTime + 10)
+  }
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const audio = audioRef.current
+    if (!audio || audioError) return
+
+    const progressBar = e.currentTarget
+    const rect = progressBar.getBoundingClientRect()
+    const clickX = e.clientX - rect.left
+    const percentage = clickX / rect.width
+    const newTime = percentage * audio.duration
+
+    audio.currentTime = newTime
+    setCurrentTime(Math.floor(newTime))
+  }
+
+  const jumpToTime = (timeInSeconds: number) => {
+    const audio = audioRef.current
+    if (!audio || audioError) return
+
+    audio.currentTime = timeInSeconds
+    setCurrentTime(timeInSeconds)
+  }
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number.parseFloat(e.target.value)
+    setVolume(newVolume)
+
+    const audio = audioRef.current
+    if (audio) {
+      audio.volume = newVolume
+    }
+  }
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
+  // Show message if no file uploaded
+  if (!uploadedFile || !audioUrl) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">No Audio File Found</h3>
+            <p className="text-slate-600 mb-4">Please upload an audio file first to view the transcription.</p>
+            <Link href="/">
+              <Button>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Go Back to Upload
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Hidden Audio Element */}
+      {audioUrl && <audio ref={audioRef} src={audioUrl} preload="metadata" />}
+
       {/* Header */}
       <header className="border-b bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -96,8 +239,10 @@ export default function TranscribePage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Q4 Strategy Planning</h1>
-                <p className="text-sm text-slate-600">Transcribed on January 15, 2024</p>
+                <h1 className="text-xl font-bold text-slate-900">{uploadedFile.name}</h1>
+                <p className="text-sm text-slate-600">
+                  {(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB • {uploadedFile.type}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -127,24 +272,59 @@ export default function TranscribePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-sm text-slate-600">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
+                {audioError ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-slate-900 mb-2">Audio Loading Error</h3>
+                    <p className="text-slate-600">Unable to load the audio file. Please try uploading again.</p>
                   </div>
-                  <Progress value={(currentTime / duration) * 100} className="h-2" />
-                  <div className="flex items-center justify-center space-x-4">
-                    <Button variant="outline" size="sm">
-                      <SkipBack className="w-4 h-4" />
-                    </Button>
-                    <Button onClick={() => setIsPlaying(!isPlaying)} size="sm" className="w-12 h-12 rounded-full">
-                      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <SkipForward className="w-4 h-4" />
-                    </Button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-sm text-slate-600">
+                      <span>{formatTime(currentTime)}</span>
+                      <span>{duration > 0 ? formatTime(duration) : "--:--"}</span>
+                    </div>
+
+                    {/* Progress Bar - Clickable */}
+                    <div className="relative cursor-pointer" onClick={handleProgressClick}>
+                      <Progress value={duration > 0 ? (currentTime / duration) * 100 : 0} className="h-2" />
+                    </div>
+
+                    {/* Audio Controls */}
+                    <div className="flex items-center justify-center space-x-4">
+                      <Button variant="outline" size="sm" onClick={skipBackward} disabled={audioError}>
+                        <SkipBack className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        onClick={togglePlayPause}
+                        size="sm"
+                        className="w-12 h-12 rounded-full"
+                        disabled={audioError}
+                      >
+                        {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={skipForward} disabled={audioError}>
+                        <SkipForward className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Volume Control */}
+                    <div className="flex items-center space-x-2 justify-center">
+                      <Volume2 className="w-4 h-4 text-slate-500" />
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={volume}
+                        onChange={handleVolumeChange}
+                        className="w-24 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        disabled={audioError}
+                      />
+                      <span className="text-xs text-slate-500 w-8">{Math.round(volume * 100)}%</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -176,9 +356,20 @@ export default function TranscribePage() {
                   {transcriptData
                     .filter((item) => selectedSpeaker === "all" || item.speaker === selectedSpeaker)
                     .map((item, index) => (
-                      <div key={index} className="flex space-x-4 p-3 rounded-lg hover:bg-slate-50">
+                      <div
+                        key={index}
+                        className={`flex space-x-4 p-3 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors ${
+                          Math.abs(currentTime - item.timeInSeconds) < 5 ? "bg-blue-50 border-l-4 border-blue-500" : ""
+                        }`}
+                        onClick={() => jumpToTime(item.timeInSeconds)}
+                      >
                         <div className="flex-shrink-0">
-                          <Badge variant="outline" className="text-xs">
+                          <Badge
+                            variant="outline"
+                            className={`text-xs cursor-pointer hover:bg-blue-100 ${
+                              Math.abs(currentTime - item.timeInSeconds) < 5 ? "bg-blue-100" : ""
+                            }`}
+                          >
                             {item.time}
                           </Badge>
                         </div>
@@ -195,46 +386,34 @@ export default function TranscribePage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Meeting Info */}
+            {/* File Info */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <FileText className="w-5 h-5 mr-2" />
-                  Meeting Details
+                  File Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center text-sm">
                   <Clock className="w-4 h-4 mr-2 text-slate-500" />
                   <span className="text-slate-600">Duration:</span>
-                  <span className="ml-auto font-medium">{summary.duration}</span>
+                  <span className="ml-auto font-medium">{duration > 0 ? formatTime(duration) : "Loading..."}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <FileText className="w-4 h-4 mr-2 text-slate-500" />
+                  <span className="text-slate-600">Size:</span>
+                  <span className="ml-auto font-medium">{(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Users className="w-4 h-4 mr-2 text-slate-500" />
-                  <span className="text-slate-600">Participants:</span>
-                  <span className="ml-auto font-medium">{summary.participants.length}</span>
+                  <span className="text-slate-600">Type:</span>
+                  <span className="ml-auto font-medium">{uploadedFile.type}</span>
                 </div>
                 <Separator />
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Participants</h4>
-                  <div className="space-y-1">
-                    {summary.participants.map((participant, index) => (
-                      <div key={index} className="text-sm text-slate-600">
-                        {participant}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <Separator />
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Topics Discussed</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {summary.topics.map((topic, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {topic}
-                      </Badge>
-                    ))}
-                  </div>
+                  <h4 className="font-medium text-sm mb-2">File Name</h4>
+                  <p className="text-sm text-slate-600 break-all">{uploadedFile.name}</p>
                 </div>
               </CardContent>
             </Card>

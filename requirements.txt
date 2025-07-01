@@ -1,1 +1,3 @@
 assemblyai
+fastapi uvicorn python-multipart
+axios

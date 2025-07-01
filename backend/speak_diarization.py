@@ -1,4 +1,5 @@
 import assemblyai as aai
+aai.settings.api_key = "d382343e612f4deda88f32041e4bb566"
 
 audio_url = "https://storage.googleapis.com/aai-web-samples/meeting.mp3"
 
